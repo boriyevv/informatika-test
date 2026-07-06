@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Informatika — Test Sinovi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#0a0a0a;--white:#fafafa;--gray-100:#f0f0f0;--gray-200:#e0e0e0;
+  --gray-400:#9a9a9a;--gray-600:#555;--correct:#1a7a3c;--wrong:#b91c1c;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--white);color:var(--black);min-height:100vh;line-height:1.6}
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex;flex-direction:column}
+
+/* ── WELCOME ── */
+#welcome{align-items:center;justify-content:center;padding:2rem;background:var(--black);color:var(--white);position:relative;overflow:hidden}
+#welcome::before{content:'I';position:absolute;font-family:'Playfair Display',serif;font-size:40vw;font-weight:900;color:rgba(255,255,255,0.03);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;user-select:none}
+.welcome-inner{max-width:500px;width:100%;position:relative;z-index:1}
+.eyebrow{font-size:0.7rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--gray-400);margin-bottom:1.2rem}
+.display-title{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,6vw,3.4rem);font-weight:900;line-height:1.05;margin-bottom:0.5rem;letter-spacing:-0.02em}
+.display-sub{font-size:1rem;color:var(--gray-400);margin-bottom:2rem;font-weight:300}
+.meta-row{display:flex;gap:1.5rem;margin-bottom:2rem;padding-bottom:1.8rem;border-bottom:1px solid rgba(255,255,255,0.1);flex-wrap:wrap}
+.meta-item{display:flex;flex-direction:column;gap:2px}
+.meta-label{font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gray-400)}
+.meta-value{font-size:1rem;font-weight:600}
+.form-group{margin-bottom:1.1rem}
+label{display:block;font-size:0.73rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-400);margin-bottom:0.45rem}
+input[type="text"]{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:var(--white);font-family:'Inter',sans-serif;font-size:1rem;padding:0.82rem 1rem;border-radius:6px;outline:none;transition:border-color 0.2s}
+input[type="text"]:focus{border-color:rgba(255,255,255,0.5)}
+input[type="text"]::placeholder{color:rgba(255,255,255,0.2)}
+
+/* variant selector */
+.variant-label{font-size:0.73rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-400);margin-bottom:0.6rem;display:block}
+.variant-cards{display:flex;gap:0.7rem;margin-bottom:1.3rem}
+.v-card{flex:1;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.9rem 0.5rem;text-align:center;cursor:pointer;transition:all 0.18s;color:var(--white)}
+.v-card:hover{border-color:rgba(255,255,255,0.5);background:rgba(255,255,255,0.1)}
+.v-card.active{border-color:var(--white);background:var(--white);color:var(--black)}
+.v-card-num{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;line-height:1;margin-bottom:3px}
+.v-card-lbl{font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;opacity:0.6}
+.v-card.active .v-card-lbl{opacity:0.5}
+
+.btn-primary{width:100%;background:var(--white);color:var(--black);border:none;font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:700;letter-spacing:0.04em;padding:1rem;border-radius:6px;cursor:pointer;transition:opacity 0.15s,transform 0.1s;margin-top:0.5rem}
+.btn-primary:hover{opacity:0.9}
+.btn-primary:active{transform:scale(0.99)}
+
+/* live lb */
+.live-lb-wrap{margin-top:1.8rem;padding-top:1.4rem;border-top:1px solid rgba(255,255,255,0.1)}
+.live-lb-title{font-size:0.63rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray-400);margin-bottom:0.7rem}
+.live-lb-list{display:flex;flex-direction:column;gap:4px;max-height:210px;overflow-y:auto}
+.live-lb-item{display:flex;align-items:center;gap:0.6rem;padding:0.45rem 0.7rem;border-radius:5px;background:rgba(255,255,255,0.05);font-size:0.8rem}
+.live-lb-rank{min-width:22px;font-weight:800;color:var(--gray-400);font-size:0.72rem}
+.live-lb-rank.top{color:var(--white)}
+.live-lb-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.live-lb-badge{font-size:0.62rem;padding:2px 6px;border-radius:3px;font-weight:700;letter-spacing:0.05em;flex-shrink:0}
+.live-lb-badge.v1{background:rgba(255,255,255,0.12)}
+.live-lb-badge.v2{background:rgba(255,255,255,0.18)}
+.live-lb-badge.v3{background:rgba(255,255,255,0.24)}
+.live-lb-score{font-weight:700;font-variant-numeric:tabular-nums;flex-shrink:0}
+.live-lb-pass{display:inline-block;width:7px;height:7px;border-radius:50%;background:#4ade80;margin-left:3px;flex-shrink:0}
+.live-lb-fail{display:inline-block;width:7px;height:7px;border-radius:50%;background:#f87171;margin-left:3px;flex-shrink:0}
+.live-lb-empty{font-size:0.8rem;color:var(--gray-400);padding:0.4rem 0}
+
+/* ── TEST ── */
+#test{flex-direction:column;background:var(--white)}
+.test-header{position:sticky;top:0;z-index:100;background:var(--black);color:var(--white);padding:0.85rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.header-left{display:flex;flex-direction:column;gap:1px}
+.header-name{font-size:0.85rem;font-weight:600}
+.header-progress{font-size:0.68rem;color:var(--gray-400);letter-spacing:0.05em}
+.timer-block{display:flex;align-items:center;gap:0.6rem;background:rgba(255,255,255,0.08);padding:0.48rem 1rem;border-radius:5px;font-variant-numeric:tabular-nums}
+.timer-dot{width:7px;height:7px;background:#fff;border-radius:50%;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.timer-text{font-size:1rem;font-weight:700;letter-spacing:0.06em}
+.timer-block.urgent{background:rgba(185,28,28,0.3)}
+.timer-block.urgent .timer-dot{background:#f87171}
+.timer-block.urgent .timer-text{color:#f87171}
+.progress-bar-wrap{height:3px;background:var(--gray-200);width:100%}
+.progress-bar-fill{height:100%;background:var(--black);transition:width 0.4s ease}
+.test-body{flex:1;padding:2.5rem 2rem;max-width:760px;margin:0 auto;width:100%}
+.q-number{font-size:0.68rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--gray-400);margin-bottom:0.9rem}
+.q-text{font-family:'Playfair Display',serif;font-size:clamp(1.05rem,3vw,1.3rem);font-weight:700;line-height:1.45;margin-bottom:1.8rem;color:var(--black)}
+.options{display:flex;flex-direction:column;gap:0.65rem}
+.option{display:flex;align-items:flex-start;gap:1rem;padding:0.95rem 1.1rem;border:1.5px solid var(--gray-200);border-radius:8px;cursor:pointer;transition:border-color 0.15s,background 0.15s;background:var(--white);text-align:left;width:100%;font-family:'Inter',sans-serif}
+.option:hover:not(.disabled){border-color:var(--black);background:var(--gray-100)}
+.option.selected{border-color:var(--black);background:var(--black);color:var(--white)}
+.option.disabled{cursor:default}
+.opt-letter{min-width:27px;height:27px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:0.73rem;font-weight:700;flex-shrink:0;margin-top:1px}
+.option.selected .opt-letter{background:var(--white);color:var(--black);border-color:var(--white)}
+.opt-text{font-size:0.93rem;line-height:1.5}
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:2.2rem;padding-top:1.4rem;border-top:1px solid var(--gray-200)}
+.btn-nav{display:flex;align-items:center;gap:0.5rem;background:none;border:1.5px solid var(--gray-200);color:var(--black);font-family:'Inter',sans-serif;font-size:0.83rem;font-weight:600;padding:0.6rem 1.1rem;border-radius:6px;cursor:pointer;transition:border-color 0.15s,background 0.15s}
+.btn-nav:hover{border-color:var(--black);background:var(--gray-100)}
+.btn-nav:disabled{opacity:0.3;cursor:default}
+.btn-finish{background:var(--black);color:var(--white);border:1.5px solid var(--black);font-family:'Inter',sans-serif;font-size:0.83rem;font-weight:700;padding:0.6rem 1.4rem;border-radius:6px;cursor:pointer;transition:opacity 0.15s}
+.btn-finish:hover{opacity:0.8}
+.q-map{display:flex;flex-wrap:wrap;gap:5px;padding:0.9rem 2rem;border-top:1px solid var(--gray-200)}
+.q-dot{width:26px;height:26px;border-radius:4px;border:1.5px solid var(--gray-200);font-size:0.58rem;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;color:var(--gray-400);background:none;font-family:'Inter',sans-serif}
+.q-dot:hover{border-color:var(--black);color:var(--black)}
+.q-dot.answered{background:var(--black);border-color:var(--black);color:var(--white)}
+.q-dot.current{border-color:var(--black);color:var(--black);font-weight:800}
+
+/* ── RESULT ── */
+#result{align-items:center;justify-content:flex-start;background:var(--white);padding:3rem 2rem 4rem}
+.result-inner{max-width:740px;width:100%;margin:0 auto}
+.result-hero{border-radius:12px;padding:2.3rem;margin-bottom:1.8rem;text-align:center;position:relative;overflow:hidden}
+.result-hero.passed{background:var(--black);color:var(--white)}
+.result-hero.failed{background:#1c0a0a;color:var(--white)}
+.result-hero::after{content:attr(data-pct);position:absolute;font-family:'Playfair Display',serif;font-size:14rem;font-weight:900;color:rgba(255,255,255,0.04);bottom:-3rem;right:-1rem;line-height:1;pointer-events:none}
+.result-name{font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--gray-400);margin-bottom:0.35rem}
+.result-variant{font-size:0.72rem;color:var(--gray-400);margin-bottom:0.3rem;letter-spacing:0.06em}
+.result-score{font-family:'Playfair Display',serif;font-size:clamp(3rem,14vw,5.5rem);font-weight:900;line-height:1;margin-bottom:0.25rem}
+.result-of{font-size:0.95rem;color:var(--gray-400);margin-bottom:0.8rem}
+.result-grade{display:inline-block;font-size:0.78rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:0.38rem 1.1rem;border-radius:100px;border:1.5px solid rgba(255,255,255,0.3)}
+.result-verdict{display:block;font-size:0.85rem;margin-top:0.55rem;font-weight:600;letter-spacing:0.06em}
+.result-verdict.pass{color:#4ade80}
+.result-verdict.fail{color:#f87171}
+.result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0.9rem;margin-bottom:1.8rem}
+.stat-card{border:1.5px solid var(--gray-200);border-radius:8px;padding:1.1rem;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:900;line-height:1;margin-bottom:0.25rem}
+.stat-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--gray-400)}
+.stat-card.c-card .stat-val{color:var(--correct)}
+.stat-card.w-card .stat-val{color:var(--wrong)}
+
+/* leaderboard */
+.lb-section{margin-top:2.2rem}
+.section-head{display:flex;align-items:baseline;gap:0.8rem;margin-bottom:0.9rem;padding-bottom:0.55rem;border-bottom:1.5px solid var(--black)}
+.section-title{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:900}
+.section-count{font-size:0.73rem;color:var(--gray-400)}
+.lb-tabs{display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap}
+.lb-tab{background:none;border:1.5px solid var(--gray-200);color:var(--gray-400);font-family:'Inter',sans-serif;font-size:0.78rem;font-weight:600;padding:0.42rem 0.9rem;border-radius:5px;cursor:pointer;transition:all 0.15s}
+.lb-tab:hover{border-color:var(--black);color:var(--black)}
+.lb-tab.active{background:var(--black);border-color:var(--black);color:var(--white)}
+.lb-table{width:100%;border-collapse:collapse}
+.lb-table th{font-size:0.62rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gray-400);padding:0.55rem 0.7rem;text-align:left;border-bottom:1px solid var(--gray-200)}
+.lb-table td{padding:0.75rem 0.7rem;font-size:0.86rem;border-bottom:1px solid var(--gray-100);vertical-align:middle}
+.lb-table tr:last-child td{border-bottom:none}
+.lb-table tr.hl td{background:#f9f9f9}
+.lb-rank-cell{font-weight:800;font-size:0.82rem;width:2.2rem;color:var(--gray-400)}
+.lb-rank-cell.top{color:var(--black)}
+.lb-name-cell{font-weight:600}
+.lb-name-cell.cur::after{content:' \2190';font-weight:400;font-size:0.72rem;color:var(--gray-400)}
+.lb-score-cell{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.lb-pct{font-size:0.76rem;color:var(--gray-400)}
+.lb-v-badge{font-size:0.62rem;padding:2px 6px;border-radius:3px;font-weight:700;background:var(--gray-100);color:var(--gray-600)}
+.lb-status-cell{white-space:nowrap}
+.sdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.sdot.pass{background:#4ade80}
+.sdot.fail{background:#f87171}
+.lb-bar-cell{width:22%}
+.lb-bar-bg{height:4px;background:var(--gray-100);border-radius:4px;overflow:hidden}
+.lb-bar-fill{height:100%;border-radius:4px}
+.lb-bar-fill.pass{background:var(--correct)}
+.lb-bar-fill.fail{background:var(--wrong)}
+.btn-retake{width:100%;margin-top:1.8rem;background:var(--black);color:var(--white);border:none;font-family:'Inter',sans-serif;font-size:0.93rem;font-weight:700;letter-spacing:0.04em;padding:1rem;border-radius:6px;cursor:pointer;transition:opacity 0.15s}
+.btn-retake:hover{opacity:0.8}
+
+/* modal */
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:999;align-items:center;justify-content:center;padding:1.5rem}
+.modal-backdrop.open{display:flex}
+.modal{background:var(--white);border-radius:10px;padding:2rem;max-width:380px;width:100%}
+.modal h3{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:900;margin-bottom:0.55rem}
+.modal p{font-size:0.88rem;color:var(--gray-600);margin-bottom:1.4rem;line-height:1.6}
+.modal-btns{display:flex;gap:0.8rem}
+.modal-cancel{flex:1;background:var(--gray-100);border:none;font-family:'Inter',sans-serif;font-weight:600;font-size:0.88rem;padding:0.72rem;border-radius:6px;cursor:pointer;transition:background 0.15s}
+.modal-cancel:hover{background:var(--gray-200)}
+.modal-ok{flex:1;background:var(--black);color:var(--white);border:none;font-family:'Inter',sans-serif;font-weight:700;font-size:0.88rem;padding:0.72rem;border-radius:6px;cursor:pointer;transition:opacity 0.15s}
+.modal-ok:hover{opacity:0.8}
+
+@media(max-width:600px){
+  .test-header{padding:0.75rem 1rem}
+  .test-body{padding:1.4rem 1rem}
+  .result-stats{gap:0.55rem}
+  .stat-card{padding:0.75rem 0.4rem}
+  .stat-val{font-size:1.5rem}
+  #result{padding:1.4rem 1rem 3rem}
+  .result-hero{padding:1.6rem 1.2rem}
+  .lb-bar-cell{display:none}
+  .q-map{padding:0.75rem 1rem}
+  .variant-cards{gap:0.5rem}
+}
+</style>
+</head>
+<body>
+
+<!-- WELCOME -->
+<section id="welcome" class="screen active">
+  <div class="welcome-inner">
+    <p class="eyebrow">O'quv sinovi &middot; Informatika</p>
+    <h1 class="display-title">Test<br>Sinovi</h1>
+    <p class="display-sub">Variantni tanlab, testni boshlang</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="meta-label">Savollar</span><span class="meta-value">30 ta</span></div>
+      <div class="meta-item"><span class="meta-label">Vaqt</span><span class="meta-value">20 daqiqa</span></div>
+      <div class="meta-item"><span class="meta-label">O'tish</span><span class="meta-value">75%</span></div>
+      <div class="meta-item"><span class="meta-label">Darajalar</span><span class="meta-value">Oson / O'rta / Qiyin</span></div>
+    </div>
+
+    <div class="form-group">
+      <label for="fname">Ism</label>
+      <input type="text" id="fname" placeholder="Ism" autocomplete="given-name">
+    </div>
+    <div class="form-group">
+      <label for="lname">Familiya</label>
+      <input type="text" id="lname" placeholder="Familiya" autocomplete="family-name">
+    </div>
+
+    <span class="variant-label">Variant tanlang</span>
+    <div class="variant-cards">
+      <div class="v-card active" id="vc1" onclick="selectVariant(1)">
+        <div class="v-card-num">1</div>
+        <div class="v-card-lbl">Variant</div>
+      </div>
+      <div class="v-card" id="vc2" onclick="selectVariant(2)">
+        <div class="v-card-num">2</div>
+        <div class="v-card-lbl">Variant</div>
+      </div>
+      <div class="v-card" id="vc3" onclick="selectVariant(3)">
+        <div class="v-card-num">3</div>
+        <div class="v-card-lbl">Variant</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="startTest()">Testni boshlash &#8594;</button>
+
+    <div class="live-lb-wrap">
+      <p class="live-lb-title">Oxirgi natijalar</p>
+      <div class="live-lb-list" id="welcome-lb"></div>
+    </div>
+  </div>
+</section>
+
+<!-- TEST -->
+<section id="test" class="screen">
+  <div class="test-header">
+    <div class="header-left">
+      <span class="header-name" id="hdr-name"></span>
+      <span class="header-progress" id="hdr-prog">1 / 30</span>
+    </div>
+    <div class="timer-block" id="timer-block">
+      <div class="timer-dot"></div>
+      <span class="timer-text" id="timer-text">20:00</span>
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="prog-bar" style="width:0%"></div>
+  </div>
+  <div class="q-map" id="q-map"></div>
+  <div class="test-body">
+    <p class="q-number" id="q-num">SAVOL 1 / 30</p>
+    <p class="q-text" id="q-text"></p>
+    <div class="options" id="options"></div>
+    <div class="nav-row">
+      <button class="btn-nav" id="btn-prev" onclick="goTo(currentQ-1)">&larr; Oldingi</button>
+      <button class="btn-finish" onclick="openConfirm()">Yakunlash</button>
+      <button class="btn-nav" id="btn-next" onclick="goTo(currentQ+1)">Keyingi &rarr;</button>
+    </div>
+  </div>
+</section>
+
+<!-- RESULT -->
+<section id="result" class="screen">
+  <div class="result-inner">
+    <div class="result-hero passed" id="result-hero" data-pct="0">
+      <p class="result-name" id="res-name"></p>
+      <p class="result-variant" id="res-variant"></p>
+      <div class="result-score" id="res-score">0</div>
+      <p class="result-of">30 dan</p>
+      <span class="result-grade" id="res-grade"></span>
+      <span class="result-verdict" id="res-verdict"></span>
+    </div>
+    <div class="result-stats">
+      <div class="stat-card c-card"><div class="stat-val" id="res-correct">0</div><div class="stat-label">To'g'ri</div></div>
+      <div class="stat-card w-card"><div class="stat-val" id="res-wrong">0</div><div class="stat-label">Noto'g'ri</div></div>
+      <div class="stat-card"><div class="stat-val" id="res-skip">0</div><div class="stat-label">O'tkazib</div></div>
+    </div>
+    <div class="lb-section">
+      <div class="section-head">
+        <span class="section-title">Natijalar jadvali</span>
+        <span class="section-count" id="lb-count"></span>
+      </div>
+      <div class="lb-tabs">
+        <button class="lb-tab active" onclick="switchTab('all',this)">Hammasi</button>
+        <button class="lb-tab" onclick="switchTab(1,this)">1-Variant</button>
+        <button class="lb-tab" onclick="switchTab(2,this)">2-Variant</button>
+        <button class="lb-tab" onclick="switchTab(3,this)">3-Variant</button>
+      </div>
+      <table class="lb-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Ism Familiya</th>
+            <th>Natija</th>
+            <th>Variant</th>
+            <th>Holat</th>
+            <th class="lb-bar-cell"></th>
+          </tr>
+        </thead>
+        <tbody id="lb-body"></tbody>
+      </table>
+    </div>
+    <button class="btn-retake" onclick="retake()">Qaytadan urinish</button>
+  </div>
+</section>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <h3>Testni yakunlash?</h3>
+    <p id="modal-msg">Natijani ko'rish uchun yakunlang.</p>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">Bekor qilish</button>
+      <button class="modal-ok" onclick="submitTest()">Yakunlash</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   DATA — 3 variants x 30 questions each
+   ans: index of correct option in opts array (0-based)
+   ========================================================= */
+var VARIANTS = {
+  1: [
+    /* 1-10 easy */
+    {q:"\"Informatika\" atamasi qachondan boshlab ilk bor ishlatila boshlangan?",opts:["XX asrning 40-yillarida","XX asrning 50-yillarida","XX asrning 60-yillarida","XXI asrning boshida"],ans:2},
+    {q:"\"Kompyuter\" so'zi ingliz tilidan tarjima qilinganda qanday ma'noni bildiradi?",opts:["Yozuvchi","Hisoblovchi","Chizmachi","Ko'rsatuvchi"],ans:1},
+    {q:"Kompyuterning qattiq qismlari (texnik ta'minoti) inglizcha qanday nomlanadi?",opts:["Software","Hardware","Middleware","Firmware"],ans:1},
+    {q:"Kompyuterning dasturiy ta'minoti (yumshoq qismi) nima deb ataladi?",opts:["Hardware","Software","Flashware","Earthware"],ans:1},
+    {q:"Ma'lumotning nechta asosiy xossasi mavjud?",opts:["2 ta","3 ta","4 ta","5 ta"],ans:1},
+    {q:"Kompyuterning eng tez ishlaydigan ichki xotirasi qaysi?",opts:["Tashqi xotira","Tezkor (operativ) xotira","Doimiy xotira","Flesh xotira"],ans:1},
+    {q:"\"Ikkinchi imkon\" loyihasi aholining qaysi qatlamini raqamli bilimlarga o'qitish uchun tashkil etilgan?",opts:["Maktab o'quvchilarini","Jazoni o'tash muassasalaridagi shaxslarni","Nafaqaxo'rlarni","Tadbirkorlarni"],ans:1},
+    {q:"Sichqoncha va klaviatura qanday qurilmalar sirasiga kiradi?",opts:["Chiqarish qurilmalari","Kiritish qurilmalari","Saqlash qurilmalari","Aloqa qurilmalari"],ans:1},
+    {q:"Printer qanday qurilma hisoblanadi?",opts:["Kiritish qurilmasi","Chiqarish qurilmasi","Saqlash qurilmasi","Boshqaruv qurilmasi"],ans:1},
+    {q:"Klaviaturada tugmacha bosilganda klaviatura nazoratchisi hosil qiladigan kod turi nima deyiladi?",opts:["ASCII kod","SCAN kod","Binar kod","Sistemali kod"],ans:1},
+    /* 11-20 medium */
+    {q:"Ma'lumotning qaysi xossasi uning amaliyotda qo'llanilish darajasini belgilaydi?",opts:["Atributiv","Pragmatik","Dinamik","Elementar"],ans:1},
+    {q:"Planshetli skanerlarning A4 o'lchamli bir betni skanerlash tezligi qancha?",opts:["1-2 sekund","2-10 sekund","10-20 sekund","1 minut"],ans:1},
+    {q:"Birinchi mikroprosessor (MP-4004) qaysi firma tomonidan ishlab chiqarilgan?",opts:["AMD","IBM","Intel","Apple"],ans:2},
+    {q:"Kompyuter umumiy mantiqiy tuzilishi (klassik arxitekturasi) kim tomonidan taklif etilgan?",opts:["Charlz Bebbidj","Jon Fon Neyman","Blaz Paskal","Bill Geyts"],ans:1},
+    {q:"Skanerlar konstruktiv jihatdan qanday asosiy turlarga bo'linadi?",opts:["Ichki va tashqi","Dastaki va stolli","Simli va simsiz","Elektron va mexanik"],ans:1},
+    {q:"Kompyuter tizim shinalar nechta asosiy turga bo'linadi?",opts:["2 xil","3 xil","4 xil","5 xil"],ans:1},
+    {q:"Joriy (operativ) xotira inglizchada qanday nomlanadi?",opts:["ROM","RAM","HDD","FDD"],ans:1},
+    {q:"Markaziy protsessor inglizchada qanday qisqartma bilan yuritiladi?",opts:["RAM","ROM","CPU","GPU"],ans:2},
+    {q:"Protsessor tezligi qaysi o'lchov birligida belgilanadi?",opts:["Bayt","Gerts (Gz)","dpi","Bit"],ans:1},
+    {q:"Printerlar ish tamoyiliga ko'ra qaysi variantda to'g'ri guruhlangan?",opts:["Tezkor va sekin","Matrisali, purkagichli, lazerli","Ichki va tashqi","Simli va tarmoqli"],ans:1},
+    /* 21-30 hard */
+    {q:"Birinchi avlod EHMlarining tezkorligi sekundiga taxminan nechta amalni tashkil etgan?",opts:["1 000 ta","10 000 ta","100 000 ta","1 000 000 ta"],ans:1},
+    {q:"Modem so'zining ma'nosi qaysi variantda to'g'ri ko'rsatilgan?",opts:["Monitor-Demonitor","Modulyator-Demodulyator","Model-Demodul","Modifikator-Demomodifikator"],ans:1},
+    {q:"Digitayzerning asosiy vazifasi nimadan iborat?",opts:["Matnni qog'ozga chop etish","Tasvirlarni raqamlab chiqarish","Ovozli signallarni uzatish","Kompyuterni viruslardan himoya qilish"],ans:1},
+    {q:"Ikkinchi avlod EHMlarining elementlar bazasi nimalardан iborat edi?",opts:["Elektron lampalar","Tranzistorlar","Integral sxemalar","Katta integral sxemalar"],ans:1},
+    {q:"Standart 1 bayt necha bitga teng?",opts:["4 bit","8 bit","16 bit","1024 bit"],ans:1},
+    {q:"Parallel portlar kompyuter tizimida qanday belgilanadi?",opts:["COM1-COM3","LPT1-LPT4","USB1-USB2","PS/2"],ans:1},
+    {q:"Uchinchi avlod EHMlarining elementlar bazasi sifatida nima ishlatilgan?",opts:["Elektron lampalar","Tranzistorlar","Integral sxemalar","Mikroprosessorlar"],ans:2},
+    {q:"FSK (Frequency Shift Keying) modulyatsiya turida fizik signalning qaysi parametri o'zgaradi?",opts:["Amplitudasi","Chastotasi","Fazasi","Tezligi"],ans:1},
+    {q:"Parallel portlar (LPT) qaysi qurilmani ulash uchun eng ko'p ishlatiladi?",opts:["Sichqoncha","Modem","Printer","Klaviatura"],ans:2},
+    {q:"Videokartadagi videoxotira tasvirlarni saqlash va ekrandagi o'lcham hamda ranglar imkoniyatini belgilaydi — bu formula qanday ifodalanadi?",opts:["A+B+C","AxBxC","A/B/C","A-B-C"],ans:1}
+  ],
+  2: [
+    /* 1-10 easy */
+    {q:"Kompyuterlarni xotira hajmi va tezligiga qarab nechta guruhga bo'lish mumkin?",opts:["3 ta","4 ta","5 ta","6 ta"],ans:2},
+    {q:"Kichik o'lchamli va asosan batareya (akkumulyator) bilan ham ishlaydigan shaxsiy kompyuter turi qaysi?",opts:["Super kompyuter","Noutbuk","Katta kompyuter","Mini kompyuter"],ans:1},
+    {q:"Klaviaturada odatda nechta tugmacha (klavisha) mavjud bo'ladi?",opts:["50-60 ta","84 yoki 101/104 ta","150-200 ta","Faqat 12 ta"],ans:1},
+    {q:"Qog'ozdagi matn yoki rasmni kompyuter xotirasiga elektron shaklda kirituvchi qurilma qaysi?",opts:["Printer","Skaner","Modem","Plotter"],ans:1},
+    {q:"Oq-qora skanerlar tasvirlarni qanday turlarda o'qishi mumkin?",opts:["Faqat rangli","Shtrixli va nimrangli","Faqat uch o'lchamli","Faqat matnli"],ans:1},
+    {q:"Vazifani yechish uchun kompyuter buyruqlarining tarttiblashgan ketma-ketligi nima deyiladi?",opts:["Sxema","Dastur (programa)","Drayver","Port"],ans:1},
+    {q:"Kompyuter tizimida ma'lumotlarni uzoq muddат saqlash uchun qaysi xotira ishlatiladi?",opts:["Tezkor xotira","Tashqi xotira","Kesh xotira","Protsessor registri"],ans:1},
+    {q:"Elektron hisoblash mashinalari qisqacha qanday nomlanadi?",opts:["ShK","EHM","TX","BQ"],ans:1},
+    {q:"True Color standartidagi skanerlar nechtagacha rangni uzata oladi?",opts:["16 ta","256 ta","65 536 ta","16,8 million ta"],ans:3},
+    {q:"Ketma-ket ulanuvchi portlar kompyuterda qanday nomlanadi?",opts:["LPT","COM","RAM","ROM"],ans:1},
+    /* 11-20 medium */
+    {q:"Kompyuter arxitekturasida AMQ qisqartmasining ma'nosi nima?",opts:["Aloqa boshqaruv qurilmasi","Arifmetik-mantiqiy qurilma","Avtomatik xotira qismi","Asosiy mikroprosessor qurilmasi"],ans:1},
+    {q:"Protsessor tarkibiga qaysi ikki asosiy qurilma kiradi?",opts:["Tezkor xotira va disk","Arifmetika-mantiqiy qurilma va boshqarish qurilmasi","Monitor va klaviatura","Modem va skaner"],ans:1},
+    {q:"Optik tolali kabel bo'yicha ma'lumot uzatish tezligi maksimal qanchaga etishi mumkin?",opts:["10 Mbit/s","100 Mbit/s","300 Mbit/s","1000 Mbit/s"],ans:3},
+    {q:"Signal parametrini aloqa kanalida teskari o'zgartirish (analogni raqamli kodga o'tkazish) nima deyiladi?",opts:["Modulyatsiya","Demodulyatsiya","Kodlash","Skanlash"],ans:1},
+    {q:"Rolikli skanerlarning asosiy xususiyati nimada?",opts:["Kitoblarni ham skanerlaydi","Hujjatlar faqat varaqli holda avtomatik suriladi","Qo'lda boshqariladi","Faqat fotosuratlar uchun mo'ljallangan"],ans:1},
+    {q:"Printerning \"Draft\" rejimi nimani anglatadi?",opts:["Yuqori sifatli bosish","Xomaki (tezkor va sifati pastroq) bosish","Rangli bosish","Ikki tomonlama bosish"],ans:1},
+    {q:"Kompyuterdagi \"Software\" tushunchasi qaysi variantga to'g'ri keladi?",opts:["Sistema bloki, monitor","Operatsion tizim, amaliy dasturlar","Protsessor va shinalar","Kabellar va tarmoqlar"],ans:1},
+    {q:"Vektorli tipidagi plotterlar tasvirni qanday chizadi?",opts:["Satrma-satr nuqtalar orqali","Kerakli to'g'ri va egri chiziqlarni bevosita chizish bilan","Faqat lazer nuri yordamida","Rangli purkagichlar bilan"],ans:1},
+    {q:"Digitayzer tarkibida ko'rsatish qurilmasi sifatida nima ishlatiladi?",opts:["Sichqoncha va kuchaytirish","Pero yoki kursor","Lazer nuri","Elektron klaviatura"],ans:1},
+    {q:"Aloqa kanallari uzatish yo'nalishiga ko'ra qanday turlarga bo'linadi?",opts:["Simli va simsiz","Simpleks, yarim dupleks, dupleksli","Analog va raqamli","Optik va akustik"],ans:1},
+    /* 21-30 hard */
+    {q:"Uchinchi avlod EHMlarining tezkorligi sekundiga nechta amalga etkazilgan?",opts:["100 000 ta","2 milliongacha (turiga qarab)","10 million ta","10 milliard ta"],ans:1},
+    {q:"Kesh xotira nima va u qаerda joylashadi?",opts:["Tashqi diskdagi maxsus sektor","Protsessor ichidagi juda tez ishlovchi kichik hajmli xotira","Operativ xotiraning eng oxirgi qismi","Modem ichidagi buferli qism"],ans:1},
+    {q:"Modemlarda ishlatiladigan QAM model turi nimani anglatadi?",opts:["Chastotali modulyatsiya","Fazali modulyatsiya","Kvadraturali amplitudali modulyatsiya","Signal chastotasini pasaytirish"],ans:2},
+    {q:"Birinchi mikroprosessor yaratilgan yil qaysi variantda to'g'ri ko'rsatilgan?",opts:["1953 yil","1969 yil","1971 yil","1982 yil"],ans:2},
+    {q:"1 Megabayt (MB) necha Kilobaytga (KB) teng?",opts:["8 Kilobayt","1000 Kilobayt","1024 Kilobayt","2048 Kilobayt"],ans:2},
+    {q:"\"ELBRUS\" ko'p protsessorli hisoblash kompleksi EHMlarning qaysi avlodiga tegishli?",opts:["Ikkinchi avlod","Uchinchi avlod","To'rtinchi avlod","Beshinchi avlod"],ans:2},
+    {q:"EHM rivojlanishi tarixida jami nechta davr va avlod mavjud deb yuritiladi?",opts:["3 ta davr, 4 ta avlod","4 ta davr, 5 ta avlod","5 ta davr, 5 ta avlod","6 ta davr, 7 ta avlod"],ans:1},
+    {q:"Digitayzerning o'tkazish (ajratish) qobiliyati qanday o'lchanadi?",opts:["Sekundiga chizilgan chiziqlar soni","Millimetrdagi chiziqlar soni (100 tagacha)","Dyuimdagi nuqtalar soni (dpi)","Bayt va bitlarda"],ans:1},
+    {q:"Qaysi operatsion tizimlar ko'p protsessorli tizimlarning to'la imkoniyatidan foydalana oladi?",opts:["MS-DOS","Windows 95","Windows NT, Linux, UNIX","Faqat Windows 3.11"],ans:2},
+    {q:"Kompyuter yonishi bilan eng birinchi ishga tushadigan va qurilmalarni tekshiradigan mikrodashturlar qaerda saqlanadi?",opts:["Tezkor xotirада (RAM)","Doimiy xotirада (ROM/DQ)","Vinshestrда (HDD)","Protsessor keshida"],ans:1}
+  ],
+  3: [
+    /* 1-10 easy */
+    {q:"Eng quvvatli va o'ta murakkab global masalalarni (masalan, ob-havo prognozi) hisoblashga mo'ljallangan kompyuter turi qaysi?",opts:["Shaxsiy kompyuter","Super kompyuter","Bloknot kompyuter","Mini kompyuter"],ans:1},
+    {q:"\"Information\" so'zi lotinchadan tarjima qilinganda qanday ma'noni bildiradi?",opts:["Sir saqlash","Tushuntirish va tahlil qilish","Tezkor uzatish","Hisoblab chiqarish"],ans:1},
+    {q:"Kompyuter ekranida sichqoncha harakatini takrorlovchi belgi nima deyiladi?",opts:["Indeks","Kursor","Piksel","Skan"],ans:1},
+    {q:"Printerning \"LQ\" (Letter Quality) bosish rejimi nimani anglatadi?",opts:["Xomaki bosish","Bosmaхоnaniki kabi (yuqori) sifatli bosish","Eng past sifatli bosish","Faqat matnli bosish"],ans:1},
+    {q:"Raqamli ma'lumotlarni analog signalga aylantirib, monitorga uzatuvchi videokarta qismi qaysi?",opts:["Videoxotira","SAP (DAC)","Videokontroller","Protsessor keshi"],ans:1},
+    {q:"Ko'p protsessorli tizimlarda ikkala protsessor ham teng huquqli bo'lgan arxitektura qanday nomlanadi?",opts:["Assimetrik","Simmetrik (SMP)","Ierarxiyali","Parallel bo'lmagan"],ans:1},
+    {q:"Kompyuterning asosiy qismlari (mikroprosessor, tezkor xotira, platalar) qaerda joylashadi?",opts:["Monitorda","Sistema blokida","Klaviaturada","Printerda"],ans:1},
+    {q:"Sichqonchaning ostida aylanib turadigan moslama (eski modellarda) nima edi?",opts:["Lazer","Sharik yoki g'ildirakcha","Tugmacha","Prujina"],ans:1},
+    {q:"Axborot uzatish tizimining asosiy abonentelari kimlar yoki nimalar bo'lishi mumkin?",opts:["Faqat EHMlar","EHM, datchiklar va odamlar","Faqat modemlar","Faqat telefonlar"],ans:1},
+    {q:"5-avlod EHMlariga qaysi protsessorli kompyuterlar kiradi?",opts:["Strella va Ural","Mir va Minsk","Pentium I, II, III, IV","Faqat elektron lampali kompyuterlar"],ans:2},
+    /* 11-20 medium */
+    {q:"Ma'lumotning \"dinamik\" xossasi nimani belgilaydi?",opts:["Ichidagi bitlar sonini","Vaqt bo'yicha o'zgarish jarayonini","Sifat darajasini","Qog'ozdagi o'lchamini"],ans:1},
+    {q:"Informatsion jarayon tushunchasi o'z ichiga qaysi bosqichlarni oladi?",opts:["Faqat kompyuterni yoqishni","Ma'lumotlarni jamlash, uzatish, saqlash va qayta ishlashni","Faqat internetdan qidirishni","Matnlarni chop etishni"],ans:1},
+    {q:"Koaksial kabel bo'yicha ma'lumot uzatish tezligi taxminan qanchagacha etadi?",opts:["10 Mbit/s","100 Mbit/s","300 Mbit/s","1000 Mbit/s"],ans:2},
+    {q:"Jon Fon Neyman prinsipiga ko'ra, avtomatik bajariladigan dastur avval qaerga yuklanadi?",opts:["Tashqi diskka","Kompyuter xotirasiga (operativ xotiraga)","Printer buferiga","Monitor ekraniga"],ans:1},
+    {q:"Klaviatura nazoratchisi (kontrolleri) qaysi vazifani BAJARMAYDI?",opts:["Klavishalar holatini skanerlashni","SCAN kodlarini ASCII kodlariga o'zgartirishni","Hujjatlarni avtomatik ravishda imlосini tekshirishni","Kompyuter ulanganда klaviaturani testlashni"],ans:2},
+    {q:"Rangli skanerlarda qaysi asosiy ranglar moduli (RGB) ishlatiladi?",opts:["Qora, Oq, Ko'k","Qizil, Yashil, Ko'k (Red-Green-Blue)","Sariq, To'q qizil, Havo rang","Jigarrang, Kulrang, Binafsha"],ans:1},
+    {q:"Lazerli printerlarda tasвir qog'ozda qanday qotiriladi?",opts:["Igna bilan urib","Bo'yoq kukuni (tonerini) qizdirib, eritish orqali","Maxsus suyuqlik purkab","Elektron nur bilan kuydirib"],ans:1},
+    {q:"Lazerli plotterlarning (LED) asosiy afzalligi nimada?",opts:["Juda arzonligi","Oddiy qog'ozni ishlatishi, yuqori sifat va shovqinsiz ishlashi","Faqat qo'lda chizishi","Katta hajmda elektr toki talab qilmasligi"],ans:1},
+    {q:"Aloqa kanallari fizik tabiatiga ko'ra qanday turlarga bo'linadi?",opts:["Simpleks va dupleks","Mexanik, akustik, optik, elektr","Xomaki va sifatli","Ichki va tashqi"],ans:1},
+    {q:"Modemlarda chastotali modulyatsiya (FSK) turining afzalligi nimada?",opts:["Ma'lumotni juda katta hajmda siqishi","Xalaqitlarga juda turgunligi","Simsiz kanallarda ishlamasligi","Faqat ovozli xabar uzatishi"],ans:1},
+    /* 21-30 hard */
+    {q:"To'rtinchi avlod EHMlari asosan qaysi elementlar bazasida qurilgan?",opts:["Elektron lampalar","Tranzistorlar","Katta integral sxemalarda","Ferrit o'zaklarda"],ans:2},
+    {q:"Kompyuterdagi \"Atributiv\" xossa deganda nima tushuniladi?",opts:["Ma'lumotning foydalilik darajasi","Unisiz informatciya mavjud bo'lmasligi (ajralmas xususiyati)","Tezkorlik xususiyati","Xavfsizlik darajasi"],ans:1},
+    {q:"Birinchi avlod hisoblash mashinalarida dasturchilar dasturni qaysi tilda yozishgan?",opts:["Algoritmik tillarda (Algol-60)","Bevosita mashina tilida (0 va 1 larda)","Ingliz tilida","Paskal tilida"],ans:1},
+    {q:"Universal algoritmik tilda yozilgan dasturni mashina tiliga tarjima qiluvchi maxsus dastur nima deyiladi?",opts:["Drayver","Translyator (Tarjimon)","Operatsion tizim","Protsessor registri"],ans:1},
+    {q:"Protsessor tarkibidagi \"Summator\" (Qo'shuvchi)ning vazifasi nima?",opts:["Ma'lumotlarni o'chirib yuborish","Ikkilik sonli kodlarni qo'shish amalini bajarish","Ekranni yoritish","Kabellarni ulash"],ans:1},
+    {q:"Videokartadagi videoxotira hajmi nima belgilaydi?",opts:["Kompyuterning umumiy tezligini","Ekrandagi tasvir nuqtalari va ranglar soni imkoniyatini (AxBxC)","Qattiq diskning hajmini","Internet tezligini"],ans:1},
+    {q:"Tashqi xotira qurilmalari (vinchester, fleshka) nima sababdan \"tashqi\" deb ataladi?",opts:["Kompyuter xonasidan tashqarida turgani uchun","Joriy (operativ) xotiradan qurilma nuqtai nazaridan ajratilgani uchun","Faqat chet elda ishlab chiqarilgani uchun","Ularga umuman tok kerak bo'lmalgani uchun"],ans:1},
+    {q:"Slayd-skanerlarning asosiy texnik ustunligi nimada?",opts:["Eng arzon skaner turi ekanligi","O'tkazish qobiliyati juda yuqori (2000-5000 dpi) ekanligi","Qo'lda oson olib yurilishi","Matnlarni avtomatik tarjima qilishi"],ans:1},
+    {q:"Modemning uzatish tezligi o'lchov birligi qaysi variantda to'g'ri berilgan?",opts:["Gerts (Gz)","Bit/s (bit sekundiga)","dpi","Bayt"],ans:1},
+    {q:"Ikkinchi avlod EHMlari tarixida Rossiyada ishlab chiqarilgan mashhur modellar qaysilar?",opts:["Intel ASCI Red","Mir, Minsk-22, BESM-4","IBM 390, CRAY","Elbrus-1"],ans:1}
+  ]
+};
+
+var TOTAL = 30;
+var TIME_SEC = 1200; /* 20 minutes */
+var PASS_PCT = 75;
+
+var currentQ = 0;
+var answers = [];
+var timerInterval = null;
+var secondsLeft = TIME_SEC;
+var userName = '';
+var chosenVariant = 1;
+var activeQuestions = [];
+var currentLbFilter = 'all';
+
+function initAnswers(){
+  answers = [];
+  for(var i=0;i<TOTAL;i++) answers.push(-1);
+}
+initAnswers();
+
+/* ---- variant select ---- */
+function selectVariant(v){
+  chosenVariant = v;
+  var ids = [1,2,3];
+  for(var i=0;i<ids.length;i++){
+    var el = document.getElementById('vc'+ids[i]);
+    if(ids[i]===v) el.classList.add('active');
+    else el.classList.remove('active');
+  }
+}
+
+/* ---- storage ---- */
+function getLB(){
+  try{ return JSON.parse(localStorage.getItem('inf_lb_v3')||'[]'); }catch(e){ return []; }
+}
+function saveLB(data){
+  try{ localStorage.setItem('inf_lb_v3',JSON.stringify(data)); }catch(e){}
+}
+
+/* ---- welcome LB ---- */
+function renderWelcomeLB(){
+  var lb = getLB();
+  var el = document.getElementById('welcome-lb');
+  if(!lb.length){
+    el.innerHTML='<div class="live-lb-empty">Hali hech kim test topshirmagan</div>';
+    return;
+  }
+  var medals=['\uD83E\uDD47','\uD83E\uDD48','\uD83E\uDD49'];
+  var html='';
+  for(var i=0;i<lb.length;i++){
+    var e=lb[i];
+    var rankStr = i<3 ? medals[i] : (i+1);
+    var dotCls = e.passed ? 'live-lb-pass' : 'live-lb-fail';
+    var vCls = 'v'+e.variant;
+    html+='<div class="live-lb-item">'+
+      '<span class="live-lb-rank'+(i<3?' top':'')+'">'+rankStr+'</span>'+
+      '<span class="live-lb-name">'+e.name+'</span>'+
+      '<span class="live-lb-badge '+vCls+'">'+e.variant+'-var</span>'+
+      '<span class="live-lb-score">'+e.score+'/'+TOTAL+'</span>'+
+      '<span class="'+dotCls+'"></span>'+
+      '</div>';
+  }
+  el.innerHTML=html;
+}
+
+/* ---- start ---- */
+function startTest(){
+  var fn=document.getElementById('fname').value.trim();
+  var ln=document.getElementById('lname').value.trim();
+  if(!fn||!ln){ alert("Iltimos, ism va familiyangizni kiriting."); return; }
+  userName=fn+' '+ln;
+  activeQuestions = VARIANTS[chosenVariant];
+  initAnswers();
+  currentQ=0;
+  secondsLeft=TIME_SEC;
+  document.getElementById('hdr-name').textContent=userName+' | '+chosenVariant+'-Variant';
+  showScreen('test');
+  buildQMap();
+  renderQ(0);
+  startTimer();
+}
+
+/* ---- timer ---- */
+function startTimer(){
+  clearInterval(timerInterval);
+  timerInterval=setInterval(function(){
+    secondsLeft--;
+    updateTimerUI();
+    if(secondsLeft<=0){ clearInterval(timerInterval); submitTest(); }
+  },1000);
+}
+function updateTimerUI(){
+  var m=Math.floor(secondsLeft/60);
+  var s=secondsLeft%60;
+  document.getElementById('timer-text').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+  var bl=document.getElementById('timer-block');
+  if(secondsLeft<=180) bl.classList.add('urgent');
+  else bl.classList.remove('urgent');
+}
+
+/* ---- q-map ---- */
+function buildQMap(){
+  var map=document.getElementById('q-map');
+  map.innerHTML='';
+  for(var i=0;i<TOTAL;i++){
+    (function(idx){
+      var d=document.createElement('button');
+      d.className='q-dot';d.id='dot-'+idx;d.textContent=idx+1;
+      d.onclick=function(){ goTo(idx); };
+      map.appendChild(d);
+    })(i);
+  }
+}
+function updateQMap(){
+  for(var i=0;i<TOTAL;i++){
+    var d=document.getElementById('dot-'+i);
+    if(!d) continue;
+    d.className='q-dot';
+    if(i===currentQ) d.classList.add('current');
+    else if(answers[i]!==-1) d.classList.add('answered');
+  }
+}
+
+/* ---- render Q ---- */
+function renderQ(idx){
+  var q=activeQuestions[idx];
+  document.getElementById('q-num').textContent='SAVOL '+(idx+1)+' / '+TOTAL;
+  document.getElementById('q-text').textContent=q.q;
+  document.getElementById('hdr-prog').textContent=(idx+1)+' / '+TOTAL;
+  var done=0;
+  for(var i=0;i<answers.length;i++) if(answers[i]!==-1) done++;
+  document.getElementById('prog-bar').style.width=(done/TOTAL*100)+'%';
+  var letters=['A','B','C','D'];
+  var cont=document.getElementById('options');
+  cont.innerHTML='';
+  for(var oi=0;oi<q.opts.length;oi++){
+    (function(optIdx){
+      var btn=document.createElement('button');
+      btn.className='option'+(answers[idx]===optIdx?' selected':'');
+      btn.innerHTML='<span class="opt-letter">'+letters[optIdx]+'</span><span class="opt-text">'+q.opts[optIdx]+'</span>';
+      btn.onclick=function(){ selectAnswer(idx,optIdx); };
+      cont.appendChild(btn);
+    })(oi);
+  }
+  document.getElementById('btn-prev').disabled=(idx===0);
+  document.getElementById('btn-next').disabled=(idx===TOTAL-1);
+  updateQMap();
+}
+function selectAnswer(qIdx,optIdx){ answers[qIdx]=optIdx; renderQ(qIdx); }
+function goTo(idx){ if(idx<0||idx>=TOTAL) return; currentQ=idx; renderQ(idx); }
+
+/* ---- confirm modal ---- */
+function openConfirm(){
+  var u=0;
+  for(var i=0;i<answers.length;i++) if(answers[i]===-1) u++;
+  document.getElementById('modal-msg').textContent= u>0
+    ? 'Siz '+u+" ta savolga javob bermagansiz. Baribir yakunlaysizmi?"
+    : "Barcha savollarga javob berdingiz. Natijani ko'rish uchun yakunlang.";
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+
+/* ---- submit ---- */
+function submitTest(){
+  clearInterval(timerInterval);
+  closeModal();
+  var correct=0,wrong=0,skip=0;
+  for(var i=0;i<answers.length;i++){
+    if(answers[i]===-1) skip++;
+    else if(answers[i]===activeQuestions[i].ans) correct++;
+    else wrong++;
+  }
+  var pct=Math.round(correct/TOTAL*100);
+  var passed=(pct>=PASS_PCT);
+  var grade=pct>=90?"A'lo":pct>=75?"Yaxshi":pct>=55?"Qoniqarli":"Yetarli emas";
+
+  document.getElementById('res-name').textContent=userName;
+  document.getElementById('res-variant').textContent=chosenVariant+'-Variant';
+  document.getElementById('res-score').textContent=correct;
+  document.getElementById('res-correct').textContent=correct;
+  document.getElementById('res-wrong').textContent=wrong;
+  document.getElementById('res-skip').textContent=skip;
+  document.getElementById('res-grade').textContent=grade;
+  document.getElementById('result-hero').setAttribute('data-pct',pct+'%');
+
+  var hero=document.getElementById('result-hero');
+  hero.className='result-hero '+(passed?'passed':'failed');
+
+  var verd=document.getElementById('res-verdict');
+  verd.textContent=passed?"\u2713 O'tdi":"\u2717 O'tmadi";
+  verd.className='result-verdict '+(passed?'pass':'fail');
+
+  var lb=getLB();
+  lb.push({name:userName,score:correct,pct:pct,passed:passed,variant:chosenVariant,date:new Date().toISOString()});
+  lb.sort(function(a,b){ return b.score-a.score||(b.pct-a.pct); });
+  saveLB(lb);
+
+  currentLbFilter='all';
+  renderFullLB(lb,userName,'all');
+  updateTabButtons('all');
+  showScreen('result');
+}
+
+/* ---- leaderboard tabs ---- */
+function switchTab(filter, btn){
+  currentLbFilter=filter;
+  var lb=getLB();
+  renderFullLB(lb,userName,filter);
+  updateTabButtons(filter);
+}
+function updateTabButtons(filter){
+  var tabs=document.querySelectorAll('.lb-tab');
+  var labels=['all',1,2,3];
+  for(var i=0;i<tabs.length;i++){
+    if(labels[i]===filter) tabs[i].classList.add('active');
+    else tabs[i].classList.remove('active');
+  }
+}
+
+function renderFullLB(lb, currentName, filter){
+  var filtered=[];
+  for(var i=0;i<lb.length;i++){
+    if(filter==='all'||lb[i].variant===filter) filtered.push(lb[i]);
+  }
+  document.getElementById('lb-count').textContent=lb.length+' ta ishtirokchi';
+  var medals=['\uD83E\uDD47','\uD83E\uDD48','\uD83E\uDD49'];
+  var body=document.getElementById('lb-body');
+  body.innerHTML='';
+  if(!filtered.length){
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td colspan="6" style="text-align:center;color:var(--gray-400);padding:1.5rem 0">Bu variantda hali natija yo\'q</td>';
+    body.appendChild(tr);
+    return;
+  }
+  for(var i=0;i<filtered.length;i++){
+    var e=filtered[i];
+    var isCur=(e.name===currentName&&e.variant===chosenVariant);
+    var tr=document.createElement('tr');
+    if(isCur) tr.className='hl';
+    var rankStr=i<3?'<span style="font-size:1rem">'+medals[i]+'</span>':(i+1);
+    var pCls=e.passed?'pass':'fail';
+    var pLabel=e.passed?"O'tdi":"O'tmadi";
+    tr.innerHTML=
+      '<td class="lb-rank-cell '+(i<3?'top':'')+'">'+rankStr+'</td>'+
+      '<td class="lb-name-cell'+(isCur?' cur':'')+'">'+e.name+'</td>'+
+      '<td class="lb-score-cell">'+e.score+' <span class="lb-pct">('+e.pct+'%)</span></td>'+
+      '<td><span class="lb-v-badge">'+e.variant+'-var</span></td>'+
+      '<td class="lb-status-cell"><span class="sdot '+pCls+'"></span>'+pLabel+'</td>'+
+      '<td class="lb-bar-cell"><div class="lb-bar-bg"><div class="lb-bar-fill '+pCls+'" style="width:'+e.pct+'%"></div></div></td>';
+    body.appendChild(tr);
+  }
+}
+
+/* ---- retake ---- */
+function retake(){
+  clearInterval(timerInterval);
+  initAnswers();
+  currentQ=0;
+  document.getElementById('fname').value='';
+  document.getElementById('lname').value='';
+  renderWelcomeLB();
+  showScreen('welcome');
+}
+
+/* ---- util ---- */
+function showScreen(id){
+  var ss=document.querySelectorAll('.screen');
+  for(var i=0;i<ss.length;i++) ss[i].classList.remove('active');
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+renderWelcomeLB();
+</script>
+</body>
+</html>
